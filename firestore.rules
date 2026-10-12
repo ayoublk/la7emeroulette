@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function admin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;
+    }
+    function validCharacter() {
+      return request.resource.data.keys().hasAll(['n', 'f', 'drawn'])
+        && request.resource.data.keys().hasOnly(['n', 'f', 'drawn', 'drawnAt'])
+        && request.resource.data.n is string
+        && request.resource.data.n.size() > 0
+        && request.resource.data.f is string
+        && request.resource.data.drawn is bool;
+    }
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+    match /characters/{id} {
+      allow read: if true;
+      allow create: if admin() && validCharacter()
+        && request.resource.data.drawn == false
+        && !('drawnAt' in request.resource.data);
+      allow update: if validCharacter() && (
+        (admin() && request.resource.data.drawn == false
+          && !('drawnAt' in request.resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['drawn', 'drawnAt']))
+        || (resource.data.drawn == false
+          && request.resource.data.drawn == true
+          && request.resource.data.drawnAt == request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['drawn', 'drawnAt']))
+      );
+      allow delete: if false;
+    }
+  }
+}

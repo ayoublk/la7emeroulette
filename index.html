@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La 7ème roulette</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
+<style>
+:root{--bg:#14101f;--card:#1f1932;--fg:#f4f1ff;--mut:#9a92b8;--acc:#ffb703;--acc2:#e63e6d;--line:#37304f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f3ff;--card:#fff;--fg:#1d1633;--mut:#6f6790;--line:#ddd5f2}}
+:root[data-theme="light"]{--bg:#f6f3ff;--card:#fff;--fg:#1d1633;--mut:#6f6790;--line:#ddd5f2}
+:root[data-theme="dark"]{--bg:#14101f;--card:#1f1932;--fg:#f4f1ff;--mut:#9a92b8;--line:#37304f}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
+h1{margin:8px 0 2px;font-size:clamp(1.6rem,6vw,2.4rem);letter-spacing:.5px;text-align:center}
+.sub{color:var(--mut);margin:0 0 24px;font-size:.95rem}
+.machine{width:min(520px,100%);background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.window{position:relative;height:192px;overflow:hidden;border-radius:14px;border:3px solid var(--acc);background:var(--bg)}
+.window::before,.window::after{content:"";position:absolute;left:0;right:0;height:64px;z-index:2;pointer-events:none}
+.window::before{top:0;background:linear-gradient(var(--bg),transparent)}
+.window::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
+.marker{position:absolute;left:0;right:0;top:64px;height:64px;border-top:2px solid var(--acc2);border-bottom:2px solid var(--acc2);z-index:1;pointer-events:none;opacity:.7}
+.strip{will-change:transform}
+.row{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 12px;overflow:hidden}
+.row b{font-size:1.3rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:100%}
+.row i{font-size:.8rem;color:var(--mut);font-style:normal;white-space:nowrap}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px}
+.go{display:block;width:100%;margin-top:16px;padding:16px;font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#1a1030;letter-spacing:1px}
+.go:disabled{opacity:.45;cursor:not-allowed}
+.info{text-align:center;color:var(--mut);margin-top:12px;font-size:.9rem;min-height:1.3em}
+.result{margin-top:20px;text-align:center;min-height:64px}
+.result h2{margin:0;font-size:1.8rem;color:var(--acc)}
+.result p{margin:4px 0 0;color:var(--mut)}
+.menuBtn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:42px;height:42px;font-size:1.3rem;background:var(--card);color:var(--fg);border:1px solid var(--line);z-index:5}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 12px 16px;overflow:auto;z-index:10}
+.overlay.on{display:flex}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(640px,100%)}
+.panel h3{margin:0 0 10px}
+.admin{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;color:var(--mut);font-size:.9rem}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button,.sec{background:var(--bg);color:var(--fg);padding:8px 14px;border:1px solid var(--line)}
+.tabs button.on{background:var(--acc);color:#1a1030;border-color:var(--acc)}
+.sec:disabled{opacity:.45;cursor:not-allowed}
+textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px;font:.85rem ui-monospace,Menlo,Consolas,monospace}
+.list{max-height:50vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.list div{padding:8px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.list div:last-child{border:0}
+.list span{color:var(--mut);font-size:.85rem}
+.msg{margin:8px 0;color:var(--mut);font-size:.9rem}
+.close{float:right;background:none;color:var(--mut);font-size:1.4rem}
+.danger{color:var(--acc2);border-color:var(--acc2)}
+</style>
+</head>
+<body>
+<button class="menuBtn" id="menuBtn" aria-label="Menu" title="Menu">⚙️</button>
+<h1 id="title">🎰 La 7ème roulette</h1>
+<p class="sub">Qui va sortir aujourd'hui ?</p>
+
+<div class="machine">
+  <div class="window"><div class="marker"></div><div class="strip" id="strip"></div></div>
+  <button class="go" id="go" disabled>TIRER AU SORT</button>
+  <div class="info" id="info">Chargement…</div>
+</div>
+<div class="result" id="result"></div>
+
+<div class="overlay" id="ov">
+  <div class="panel">
+    <button class="close" id="close" aria-label="Fermer">×</button>
+    <h3>Menu</h3>
+    <div class="admin"><span id="adminTxt">Non connecté (lecture et tirage uniquement)</span><button class="sec" id="login">Connexion admin</button></div>
+    <div class="tabs">
+      <button data-t="hist" class="on">Déjà tirés</button>
+      <button data-t="add">Ajouter (CSV)</button>
+    </div>
+    <div id="t-hist">
+      <div class="msg" id="histInfo"></div>
+      <div class="msg">Coche les personnages à remettre en jeu (réservé à l'admin).</div>
+      <div class="list" id="histList"></div>
+      <p><button class="sec" id="selAll">Tout sélectionner</button> <button class="sec danger" id="reset" disabled>Remettre en jeu (0)</button></p>
+    </div>
+    <div id="t-add" hidden>
+      <div class="msg">Colonnes : <code>personnage,film</code> (la colonne film est optionnelle, l'en-tête aussi). Les doublons sont ignorés. Réservé à l'admin.</div>
+      <input type="file" id="file" accept=".csv,.txt,text/csv"><br><br>
+      <textarea id="csv" placeholder="Hannibal Lecter,Le Silence des agneaux&#10;Darth Vader,Star Wars"></textarea>
+      <p><button class="go" id="addBtn" style="margin-top:0" disabled>Ajouter à la liste</button></p>
+      <div class="msg" id="addMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getFirestore,collection,doc,getDoc,onSnapshot,runTransaction,serverTimestamp,writeBatch,deleteField} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+// ▼▼▼ COLLE ICI LA CONFIG FIREBASE (voir LISEZMOI.md) ▼▼▼
+const firebaseConfig={
+  "apiKey": "AIzaSyDuN31EBZzMKxXyZ9ykjl95P8NYe3LbUQQ",
+  "authDomain": "la7emeroulette.firebaseapp.com",
+  "projectId": "la7emeroulette",
+  "storageBucket": "la7emeroulette.firebasestorage.app",
+  "messagingSenderId": "90175390084",
+  "appId": "1:90175390084:web:206bd32f18da6305dc5dd1"
+};
+
+// ▲▲▲ FIN DE LA CONFIG ▲▲▲
+
+const $=id=>document.getElementById(id);
+const chars=new Map(); // id -> {id,n,f,drawn,t}
+const sel=new Set();
+let busy=false,ready=false,errMsg="",user=null,armed=false,db=null,auth=null;
+
+// ---------- Utilitaires ----------
+const norm=s=>s.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)};
+const mkId=o=>((norm(o.n)||"x"+hash(o.n))+"_"+norm(o.f||"")).slice(0,200);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const errText=e=>e&&e.code==="permission-denied"?"Action refusée : réservée à l'admin.":"Erreur : "+(e&&e.message||e);
+
+function parseCSV(t){
+  const first=t.split("\n")[0];
+  const sep=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?";":",";
+  const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch=='"')q=true;
+    else if(ch==sep){r.push(c);c=""}
+    else if(ch=="\n"||ch=="\r"){if(ch=="\r"&&t[i+1]=="\n")i++;r.push(c);rows.push(r);r=[];c=""}
+    else c+=ch}
+  if(c||r.length){r.push(c);rows.push(r)}
+  let ni=0,fi=1,start=0;
+  if(rows.length){const h=rows[0].map(x=>x.trim().toLowerCase());
+    const a=h.findIndex(x=>/^(personnage|character|nom|name|perso)/.test(x));
+    const b=h.findIndex(x=>/^(film|movie|titre|title)/.test(x));
+    if(a>=0||b>=0){start=1;if(a>=0)ni=a;if(b>=0)fi=b;else fi=a===0?1:0}}
+  return rows.slice(start).map(r=>({n:(r[ni]||"").trim(),f:(r[fi]||"").trim()})).filter(o=>o.n);
+}
+
+// ---------- Affichage ----------
+const all=()=>[...chars.values()];
+const remaining=()=>all().filter(c=>!c.drawn);
+const drawnList=()=>all().filter(c=>c.drawn).sort((a,b)=>a.t-b.t);
+
+function refresh(){
+  const rem=remaining().length,tot=chars.size;
+  $("go").disabled=busy||!ready||rem===0;
+  if(!ready)return;
+  if(errMsg)$("info").textContent=errMsg;
+  else if(!tot)$("info").textContent="La liste est vide — l'admin peut importer un CSV depuis le menu ⚙️.";
+  else if(!rem)$("info").textContent="Tous les personnages sont déjà sortis !";
+  else $("info").textContent=rem+" personnage"+(rem>1?"s":"")+" restant"+(rem>1?"s":"")+" sur "+tot;
+  renderHist();
+}
+function updSel(){
+  for(const id of [...sel])if(!chars.get(id)||!chars.get(id).drawn)sel.delete(id);
+  const n=sel.size,d=drawnList().length,b=$("reset");
+  b.disabled=!user||n===0;
+  b.textContent=armed?"Confirmer ("+n+") ?":"Remettre en jeu ("+n+")";
+  $("selAll").disabled=!user;
+  $("selAll").textContent=n&&n===d?"Tout désélectionner":"Tout sélectionner";
+}
+function renderHist(){
+  const l=$("histList"),d=drawnList();l.textContent="";
+  $("histInfo").textContent=d.length+" tiré"+(d.length>1?"s":"")+" / "+chars.size+" au total";
+  d.slice().reverse().forEach((x,i)=>{
+    const row=document.createElement("div");
+    const cb=document.createElement("input");cb.type="checkbox";cb.disabled=!user;cb.checked=sel.has(x.id);
+    cb.onchange=()=>{cb.checked?sel.add(x.id):sel.delete(x.id);updSel()};
+    const a=document.createElement("b");a.textContent=(d.length-i)+". "+x.n;
+    const s=document.createElement("span");s.textContent=x.f||"";
+    const lab=document.createElement("label");
+    lab.style.cssText="display:flex;gap:10px;align-items:center;cursor:pointer;min-width:0";
+    lab.append(cb,a);row.append(lab,s);l.append(row)});
+  updSel();
+}
+function rowEl(o){const d=document.createElement("div");d.className="row";const b=document.createElement("b");b.textContent=o.n;d.append(b);
+  if(o.f){const i=document.createElement("i");i.textContent=o.f;d.append(i)}return d}
+function idle(){const s=$("strip");s.textContent="";s.style.transition="none";s.style.transform="translateY(0)";
+  s.append(rowEl({n:"?"}),rowEl({n:"Prêt ?"}),rowEl({n:"?"}))}
+
+// ---------- Tirage ----------
+function spin(pick){
+  return new Promise(res=>{
+    const pool=all().length?all():[pick],N=48,s=$("strip");
+    s.textContent="";s.style.transition="none";s.style.transform="translateY(0)";
+    s.append(rowEl({n:"…"}));
+    for(let i=0;i<N;i++)s.append(rowEl(i===N-1?pick:pool[Math.floor(Math.random()*pool.length)]));
+    s.append(rowEl(pool[Math.floor(Math.random()*pool.length)]));
+    void s.offsetHeight;
+    const dur=4800;
+    s.style.transition="transform "+dur+"ms cubic-bezier(.12,.72,.14,1)";
+    s.style.transform="translateY("+(-(N-1)*64)+"px)";
+    setTimeout(res,dur+150);
+  });
+}
+async function draw(){
+  if(busy||!ready||!db)return;
+  busy=true;errMsg="";$("result").textContent="";refresh();
+  try{
+    let pick=null;
+    // Transaction : si quelqu'un a tiré le même personnage entre-temps, on retente avec un autre.
+    for(let k=0;k<6&&!pick;k++){
+      const rem=remaining();
+      if(!rem.length)break;
+      const c=rem[Math.floor(Math.random()*rem.length)];
+      const ok=await runTransaction(db,async tx=>{
+        const ref=doc(db,"characters",c.id),snap=await tx.get(ref);
+        if(!snap.exists()||snap.data().drawn)return false;
+        tx.update(ref,{drawn:true,drawnAt:serverTimestamp()});
+        return true;
+      });
+      if(ok)pick=c;else await sleep(300);
+    }
+    if(!pick){errMsg="Plus rien à tirer pour le moment, réessaie.";busy=false;refresh();return}
+    await spin(pick);
+    const r=$("result");r.textContent="";
+    const h=document.createElement("h2");h.textContent=pick.n;r.append(h);
+    if(pick.f){const p=document.createElement("p");p.textContent=pick.f;r.append(p)}
+  }catch(e){errMsg=errText(e)}
+  busy=false;refresh();
+}
+
+// ---------- Admin : import et remise en jeu ----------
+async function addItems(items){
+  if(!user)throw new Error("Connexion administrateur requise.");
+  let n=0,batch=writeBatch(db),count=0;const seen=new Set(chars.keys());
+  for(const o of items){
+    const id=mkId(o);if(seen.has(id))continue;seen.add(id);
+    batch.set(doc(db,"characters",id),{n:o.n,f:o.f||"",drawn:false});n++;count++;
+    if(count===400){await batch.commit();batch=writeBatch(db);count=0}
+  }
+  if(count)await batch.commit();
+  return n;
+}
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$("csv").value=r.result};r.readAsText(f)};
+$("addBtn").onclick=async()=>{
+  const items=parseCSV($("csv").value);
+  if(!items.length){$("addMsg").textContent="Aucune ligne valide.";return}
+  $("addBtn").disabled=true;$("addMsg").textContent="Import en cours…";
+  try{const n=await addItems(items);$("addMsg").textContent=n+" nouveau(x) ajouté(s), "+(items.length-n)+" doublon(s) ignoré(s).";$("csv").value=""}
+  catch(e){$("addMsg").textContent=errText(e)}
+  $("addBtn").disabled=!user;
+};
+$("reset").onclick=async()=>{
+  if(!user||!sel.size)return;
+  if(!armed){armed=true;updSel();setTimeout(()=>{armed=false;updSel()},4000);return}
+  armed=false;
+  try{
+    const ids=[...sel];
+    for(let i=0;i<ids.length;i+=400){
+      const b=writeBatch(db);
+      ids.slice(i,i+400).forEach(id=>b.update(doc(db,"characters",id),{drawn:false,drawnAt:deleteField()}));
+      await b.commit();
+    }
+    sel.clear();$("result").textContent="";
+  }catch(e){errMsg=errText(e);refresh()}
+  updSel();
+};
+$("selAll").onclick=()=>{const d=drawnList();if(sel.size===d.length)sel.clear();else d.forEach(x=>sel.add(x.id));renderHist()};
+
+// ---------- Menu ----------
+$("menuBtn").onclick=()=>$("ov").classList.add("on");
+$("close").onclick=()=>$("ov").classList.remove("on");
+$("ov").onclick=e=>{if(e.target===$("ov"))$("ov").classList.remove("on")};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  $("t-hist").hidden=b.dataset.t!=="hist";$("t-add").hidden=b.dataset.t!=="add"});
+$("go").onclick=draw;
+
+// ---------- Initialisation ----------
+idle();
+$("csv").value="Arthur et les Minimoys\r\nDark Vador\r\nMufasa\r\nOrange Mécanique\r\nAvatar\r\nDragon Ball Z\r\nKill Bill\r\nAlien\r\nMargot Robbie\r\nNick Fury\r\nTarzan\r\nNed Flanders\r\nJabba Le Hutt\r\nBlack Panther\r\nGollum\r\nR2D2\r\nRocky Balboa\r\nMarty Mcfly\r\nJames Bond\r\nIndiana Jones\r\nHannibal Lecter\r\nThe Shining\r\nTerminator\r\nKing Kong\r\nOptimus Prime\r\nYoda\r\nProfesseur McGonagall\r\nBellatrix Lestrange\r\nOSS 117\r\nElastigirl\r\nIdefix\r\nKirikou\r\nMary Poppins\r\nWall-E\r\nTotoro\r\nLegolas\r\nJoker\r\nIntouchables\r\nInterstellar\r\nSeul sur Mars\r\nDumbo\r\nKuzco\r\nHercule Poirot\r\nDr Watson\r\nDupond et Dupont\r\nLa-haut\r\nLuffy\r\nNaruto\r\nBambi\r\nHarry Potter\r\nBatman\r\nLa Tour Montparnasse Infernale\r\nWonder Woman\r\nCaptain America\r\nGhostbusters\r\nSpiderman\r\nLes dents de la mer\r\nWolverine\r\nRocky\r\nLa famille Adams\r\nRambo\r\nScream\r\nE.T\r\nLe Daim\r\nMatrix\r\nPirate des caraïbes\r\nScary Movie\r\nCharlie et la chocolaterie\r\nSteak\r\nLeon\r\nShrek\r\nToy Story\r\nNemo\r\nStar Wars\r\nBoite noire\r\nFreddy\r\nEdward aux mains d'argent\r\nTitanic\r\nLe parrain\r\nDragons\r\nLes 7 Samourais\r\nPoint Break\r\nLe grand bleu\r\nLes 4 fantastiques\r\nAmelie Poulain\r\nJurassic Park\r\nGladiator\r\nDirty dancing\r\nLe Roi Lion\r\nDeadpool\r\nLa planete des singes\r\nHulk\r\nBrice de Nice\r\nIron Man\r\nLara Croft\r\nDetective Pikachu\r\nRetour vers le futur\r\nLe Hobbit\r\nMen in Black\r\nRatatouille\r\nRobocop\r\nScrat\r\nKung-fu Panda\r\nSid\r\nLe livre de la jungle\r\nPeter Pan\r\nLa fée clochette\r\nFumer fait tousser\r\nLes Gremlins\r\nGandalf\r\nLes oiseaux\r\nLa momie\r\nLe loup de Wall Street\r\nTintin\r\nAladdin\r\nL'exorciste\r\nThe Punisher\r\nLes Minions\r\nTop Gun\r\nAsterix et Obelix\r\nTaxi\r\nLa liste de Schindler\r\nLa ligne verte\r\nApocalypse Now\r\n12 hommes en colere\r\nSeven\r\nCoco\r\nDumbledore\r\nVoldemort\r\nLe tombeau des Lucioles\r\nPredator\r\nPrincesse Mononoke\r\nLe chateau dans le ciel\r\nThelma et Louise\r\nPrincesse Leia\r\nV pour Vandetta\r\nJumanji\r\nLes 3 Mousquetaires\r\nBlack Adam\r\nJustice League\r\nSuperman\r\nPixels\r\nLes Evadés\r\nGrand Budapest Hotel\r\nFantastic Mr Fox\r\nL’ile aux chiens\r\nMickey\r\nPompoko\r\nPulp Fiction\r\nRaiponce\r\nKatniss Everdeen\r\nHermione Granger\r\nCatwoman\r\nElizabeth Swann\r\nFuriosa\r\nMad Max\r\nGamora\r\nElsa\r\nMulan\r\nBoulevard de la mort\r\nAlice aux pays des merveilles\r\nDark Maul\r\nMilou\r\nCapitaine Haddock\r\nSeverus Rogue\r\nDrago Malefoy\r\nSasuke\r\nNami\r\nSpider-Gwen\r\nHomer Simpson\r\nSpider-Cochon\r\nKenny\r\nCartman\r\nThe Mask\r\nLe Marsupilami\r\nRoger Rabbit\r\nBugs Bunny\r\nTaz\r\n300\r\nGodzilla\r\nGodzilla vs Kong\r\nLe Journal de Bridget Jones\r\nDidier\r\nSauvez Willy\r\nDr Octopus\r\nVenom\r\nRon Weasley\r\nEdwige\r\nHagrid\r\nAlbator\r\nBaloo\r\nBabe\r\nAriel\r\nBagheera\r\nBuzz L’Eclair\r\nWoody\r\nChucky\r\nDucobu\r\nFlash\r\nFlash McQueen\r\nGarfield\r\nGargamel\r\nHal-9000\r\nGreen Lantern\r\nLa Belle et le Clochard\r\nMr. Indestructible\r\nFrankenstein\r\nPanoramix\r\nSonic\r\nStitch\r\nStormtrooper\r\nWallace et Gromit\r\nWilly Wonka\r\nFrodon Sacquet\r\nGaladriel\r\nRafiki\r\nZazou\r\nOppenheimer\r\nBarbie\r\nCharlie Chaplin\r\nMewtow\r\nLa Mouche\r\nElephant Man\r\nLe Labyrinthe de Pan\r\nLe Château Ambulant\r\nCasino\r\nInto the Wild\r\nAnt-Man\r\nThanos\r\nGroot\r\nRocket Racoon\r\nDwayne Johnson\r\nLe Grudge\r\nThor\r\nDoctor Strange\r\nAquaman\r\nKingsman\r\nLast Man\r\nNausicaa et la Vallee du Vent\r\nPorco Rosso\r\nPonyo\r\nL’etrange Noel de Mr Jack\r\nBleach\r\nJujutsu Kaisen\r\nOlive et Tom\r\nSlender Man\r\nPaddington\r\nDracula\r\nMario\r\nBowser\r\nLe Chat Potte\r\nSmile\r\nPinocchio\r\nMonster House\r\nLa La Land\r\nDrive\r\nElvis\r\nConjuring\r\nBreaking Bad\r\nSausage Party\r\nBaymax\r\nMegamind\r\nPiranha 3D\r\nZombieland\r\nThe Social Network\r\nMadagascar\r\nMelman\r\nHellboy\r\nChopper\r\nBee Movie\r\nChicken Little\r\nManny\r\nFrere des Ours\r\nScooby-Doo\r\n1001 Pattes\r\nAkira\r\nKiki la petite Sorciere\r\nForrest Gump\r\nVito Corleone\r\nSarah Connor\r\nNeo\r\nTony Stark\r\nAragorn\r\nJack Sparrow\r\nDory\r\nFiona\r\nL'ane de Shrek\r\nSimba\r\nJason Bourne\r\nElle Driver\r\nMia Wallace\r\nRemy\r\nCruella\r\nBob Razowski\r\nJacques Sullivan\r\nBouh\r\nEVE\r\nJack-Jack\r\nFleche\r\nBlanche Neige\r\nLe Capitaine Crochet\r\nDormeur\r\nDuchesse\r\nLe Genie\r\nGrincheux\r\nHercule\r\nJoyeux\r\nMalefique\r\nMerlin\r\nMickey Mouse\r\nPocahontas\r\nProf\r\nPumbaa\r\nTimon\r\nNala\r\nZazu\r\nScar\r\nShere Khan\r\nSherlock Holmes\r\nSimplet\r\nTimide\r\nBruce Wayne\r\nHan Solo\r\nLuke Skywalker\r\nObi-Wan Kenobi\r\nAce Ventura\r\nBilbo le Hobbit\r\nTony Montana\r\nDonnie Darko\r\nEthan Hunt\r\nWednesday Addams\r\nChewbacca\r\nLe gendarme\r\nRose\r\nJean-Claude Dusse\r\nNikita\r\nMatilda\r\nGizmo\r\nJordan Belford\r\nDoc Brown\r\nJessica Rabitt\r\nBeatrix Kiddo\r\nDominique Toretto\r\nMimi Siku\r\nClark Kent\r\nJohn Coffey\r\nTruman\r\nAsterix\r\nNumerobis\r\nBeethoven\r\nPeter Parker\r\nDocteur Octopus\r\nLucius Malefoy\r\nRaya\r\nJack Skellington\r\nChihiro\r\nCalcifer\r\nMowgli\r\nJafar\r\nBorat\r\nDon Camillo\r\nConan le Barbare\r\nRobin des Bois\r\nAlbus Dumbledore\r\nGeppetto\r\nGhostface\r\nGimli\r\nGrand Schtroumpf\r\nJiminy Cricket\r\nFreddy Krueger\r\nKylo Ren\r\nL'Homme invisible\r\nLa Belle au bois dormant\r\nLa Belle et la Bête\r\nLaurel et Hardy\r\nLes 101 Dalmatiens\r\nJohn McClane\r\nEdna Mode\r\nObelix\r\nPalpatine\r\nPadme\r\nPanpan\r\nPo Ping\r\nPorcinet\r\nAustin Powers\r\nJessica Rabbit\r\nYannick\r\nSauron\r\nSchtroumpf a lunettes\r\nSchtroumpf grognon\r\nSchtroumpfette\r\nLes 7 Nains\r\nAnakin Skywalker\r\nStarsky et Hutch\r\nLilo\r\nSupergirl\r\nTigrou\r\nLargo Winch\r\nWinnie l'ourson\r\nZorro\r\nSpock\r\nEdward Cullen\r\nBella Swan\r\nTrinity\r\nMorpheus\r\nAgent Smith\r\nLe Silence des agneaux\r\nRocket Raccoon\r\nBeetlejuice\r\nLes Temps modernes\r\nAlice au pays des merveilles\r\nLe Grinch\r\nThe Dark Knight\r\nCharlie\r\nAvengers\r\nLe Monde de Nemo\r\nTruman Burbank\r\nPirates des Caraïbes\r\nJack Dawson\r\nLes Griffes de la nuit\r\nLe Pingouin\r\nDon Corleone\r\nC-3PO\r\nLes Gardiens de la Galaxie\r\nWallace\r\nJack Torrance\r\nLes Schtroumpfs\r\nSur la piste du Marsupilami\r\nLe Seigneur des Anneaux\r\nGromit\r\nAmadeus\r\nLe Génie d’Aladdin\r\nWallace & Gromit\r\nFrodon\r\nGremlins\r\nPennywise\r\nMr Bean\r\nMozart\r\nKing Julien\r\nShining\r\nThe Truman Show\r\nLa Reine des Neiges\r\nLe Lapin Blanc\r\nAlice\r\nX-Men\r\nScarface\r\nLeia Organa\r\nLuke Cage\r\nDaredevil\r\nLoki\r\nThe Flash\r\nSuperman Returns\r\nBatman Begins\r\nInception\r\nFight Club\r\nThe Matrix Reloaded\r\nThe Matrix Revolutions\r\nBraveheart\r\nJack Ryan\r\nMission Impossible\r\nDie Hard\r\nRocky II\r\nRaging Bull\r\nTaxi Driver\r\nHeat\r\nMichael Corleone\r\nV for Vendetta\r\nThe Dark Knight Rises\r\nTerminator 2\r\nJohn Connor\r\nJurassic World\r\nCendrillon\r\nBlade Runner 2049\r\nDune\r\nPaul Atreides\r\nMad Max: Fury Road\r\nCasino Royale\r\nSkyfall\r\nGoldenEye\r\nGrease\r\nUsual Suspects\r\nLe Cinquième Élément\r\nTotal Recall\r\nPrometheus\r\nCreed\r\nThe Irishman\r\nShutter Island\r\nInglourious Basterds\r\nOnce Upon a Time in Hollywood\r\nReservoir Dogs\r\nDjango Unchained\r\nLes 8 Salopards\r\nCollateral\r\nMemento\r\nBlade\r\nWatchmen\r\nSin City\r\nLogan\r\nThe Revenant\r\nTenet\r\nLe Prestige\r\nThe Thing\r\nHalloween : La Nuit des masques\r\nSaw\r\nHérédité\r\nMidsommar\r\nGet Out\r\nNope\r\nUs\r\nLe Projet Blair Witch\r\nParanormal Activity\r\nThe Witch\r\nNosferatu\r\nEntretien avec un vampire\r\nUnderworld\r\nTwilight\r\nHunger Games\r\nDivergente\r\nLe Labyrinthe\r\nReady Player One\r\nTron\r\nGhost in the Shell\r\nLe Voyage de Chihiro\r\nMon voisin Totoro\r\nUne Histoire sans fin\r\nHarry Potter à l’école des sorciers\r\nHarry Potter et la Chambre des secrets\r\nHarry Potter et le Prisonnier d’Azkaban\r\nHarry Potter et la Coupe de Feu\r\nDavy Jones\r\nIl faut sauver le soldat Ryan\r\nFull Metal Jacket\r\nLe Pont de la rivière Kwaï\r\nLawrence d’Arabie\r\nPour une poignée de dollars\r\nEt pour quelques dollars de plus\r\nIl était une fois dans l’Ouest\r\nDjango\r\nLe Train sifflera trois fois\r\nDanse avec les loups\r\nMillion Dollar Baby\r\nGran Torino\r\nJordan Belfort\r\nGatsby le Magnifique\r\nThe Big Lebowski\r\nFargo\r\nNo Country for Old Men\r\nThere Will Be Blood\r\nAmerican Psycho\r\nLe Cercle des poètes disparus\r\nWill Hunting\r\nLe Pianiste\r\nLe Dictateur\r\nLe Kid\r\nPsychose\r\nNorman Bates\r\nFenêtre sur cour\r\nVertigo\r\nSueurs froides\r\nCasablanca\r\nAutant en emporte le vent\r\nCitizen Kane\r\nLe Magicien d’Oz\r\nChantons sous la pluie\r\nWest Side Story\r\nLes Affranchis\r\nRay Liotta\r\nPlatoon\r\nWall Street\r\nRain Man\r\nSleepy Hollow\r\nKeyser Söze\r\nRequiem for a Dream\r\nDonnie Brasco\r\nSerpico\r\nL’Inspecteur Harry\r\nMystic River\r\nGone Baby Gone\r\nThe Town\r\nArgo\r\nBirdman\r\nWhiplash\r\nDrive My Car\r\nParasite\r\nOld Boy\r\nMemories of Murder\r\nSnowpiercer\r\nVol au-dessus d’un nid de coucou\r\nEyes Wide Shut\r\nLes Sept Samouraïs\r\nLa Planète interdite\r\n2001 : l’Odyssée de l’espace\r\nBrazil\r\nL’Armée des 12 singes\r\nBienvenue à Gattaca\r\nMinority Report\r\nA.I. Intelligence artificielle\r\nLe Géant de fer\r\nNausicaä de la vallée du vent\r\nYour Name\r\nPaprika";
+if(firebaseConfig.apiKey.startsWith("COLLE")){
+  $("info").textContent="Firebase n'est pas configuré : colle ta config dans index.html (voir LISEZMOI.md).";
+}else{
+  const app=initializeApp(firebaseConfig);
+  db=getFirestore(app);auth=getAuth(app);
+  onAuthStateChanged(auth,async u=>{
+    user=null;
+    if(u && u.emailVerified){
+      try{const role=await getDoc(doc(db,"admins",u.uid));if(role.exists() && role.data().enabled===true)user=u;}catch(e){console.error("Vérification administrateur",e.code);}
+    }
+    $("adminTxt").textContent=u?"Connecté : "+(u.email||"admin"):"Non connecté (lecture et tirage uniquement)";
+    $("login").textContent=auth.currentUser?"Déconnexion":"Connexion admin";
+    $("addBtn").disabled=!user;updSel();
+  });
+  $("login").onclick=()=>{
+    if(auth.currentUser)signOut(auth);
+    else signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>{$("adminTxt").textContent="Connexion impossible : "+(e&&e.code||e)});
+  };
+  onSnapshot(collection(db,"characters"),snap=>{
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==="removed"){chars.delete(ch.doc.id);return}
+      const d=ch.doc.data();
+      chars.set(ch.doc.id,{id:ch.doc.id,n:d.n,f:d.f||"",drawn:!!d.drawn,t:d.drawnAt&&d.drawnAt.toMillis?d.drawnAt.toMillis():Date.now()});
+    });
+    ready=true;refresh();
+  },e=>{ready=false;$("go").disabled=true;errMsg=errText(e);$("info").textContent=errMsg});
+}
+</script>
+</body>
+</html>
