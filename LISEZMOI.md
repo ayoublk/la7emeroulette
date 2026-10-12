@@ -11,7 +11,7 @@ Le CSV fourni contient 601 entrées, sans colonne film. Les libellés sont conse
 4. Dans Firestore → Règles, copier le contenu de `firestore.rules` et publier. Si la CLI Firebase est connectée : `firebase deploy --only firestore:rules --project la7emeroulette` depuis ce dossier.
 5. Dans Authentication → Settings → Authorized domains, ajouter `ayoublk.github.io` (le domaine seul, sans chemin).
 
-Les règles permettent à tous de lire et de tirer un personnage, mais seul l'administrateur peut créer des entrées et remettre les tirages en jeu. Les tirages sont communs à tous les visiteurs. Un visiteur peut donc épuiser la liste ; cette permission correspond au bouton de tirage public du site.
+Les règles permettent à tous de lire. Seul l’administrateur peut tirer un personnage, importer et remettre les tirages en jeu. L’historique reste partagé entre tous les visiteurs.
 
 ## Import des 601 entrées
 
