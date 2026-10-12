@@ -68,7 +68,7 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
   <div class="panel">
     <button class="close" id="close" aria-label="Fermer">×</button>
     <h3>Menu</h3>
-    <div class="admin"><span id="adminTxt">Non connecté (lecture et tirage uniquement)</span><button class="sec" id="login">Connexion admin</button></div>
+    <div class="admin"><span id="adminTxt">Non connecté (lecture uniquement)</span><button class="sec" id="login">Connexion admin</button></div>
     <div class="tabs">
       <button data-t="hist" class="on">Déjà tirés</button>
       <button data-t="add">Ajouter (CSV)</button>
@@ -144,12 +144,12 @@ const drawnList=()=>all().filter(c=>c.drawn).sort((a,b)=>a.t-b.t);
 
 function refresh(){
   const rem=remaining().length,tot=chars.size;
-  $("go").disabled=busy||!ready||rem===0;
+  $("go").disabled=!user||busy||!ready||rem===0;
   if(!ready)return;
   if(errMsg)$("info").textContent=errMsg;
   else if(!tot)$("info").textContent="La liste est vide — l'admin peut importer un CSV depuis le menu ⚙️.";
   else if(!rem)$("info").textContent="Tous les personnages sont déjà sortis !";
-  else $("info").textContent=rem+" personnage"+(rem>1?"s":"")+" restant"+(rem>1?"s":"")+" sur "+tot;
+  else $("info").textContent=rem+" personnage"+(rem>1?"s":"")+" restant"+(rem>1?"s":"")+" sur "+tot+(!user?" — tirage réservé à l’admin":"");
   renderHist();
 }
 function updSel(){
@@ -195,7 +195,7 @@ function spin(pick){
   });
 }
 async function draw(){
-  if(busy||!ready||!db)return;
+  if(!user||busy||!ready||!db)return;
   busy=true;errMsg="";$("result").textContent="";refresh();
   try{
     let pick=null;
@@ -281,9 +281,9 @@ if(firebaseConfig.apiKey.startsWith("COLLE")){
     if(u && u.emailVerified){
       try{const role=await getDoc(doc(db,"admins",u.uid));if(role.exists() && role.data().enabled===true)user=u;}catch(e){console.error("Vérification administrateur",e.code);}
     }
-    $("adminTxt").textContent=u?"Connecté : "+(u.email||"admin"):"Non connecté (lecture et tirage uniquement)";
+    $("adminTxt").textContent=user?"Administrateur : "+(user.email||"admin"):u?"Connecté (lecture uniquement)":"Non connecté (lecture uniquement)";
     $("login").textContent=auth.currentUser?"Déconnexion":"Connexion admin";
-    $("addBtn").disabled=!user;updSel();
+    $("addBtn").disabled=!user;refresh();
   });
   $("login").onclick=()=>{
     if(auth.currentUser)signOut(auth);
