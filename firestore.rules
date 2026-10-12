@@ -28,7 +28,7 @@ service cloud.firestore {
         (admin() && request.resource.data.drawn == false
           && !('drawnAt' in request.resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['drawn', 'drawnAt']))
-        || (resource.data.drawn == false
+        || (admin() && resource.data.drawn == false
           && request.resource.data.drawn == true
           && request.resource.data.drawnAt == request.time
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['drawn', 'drawnAt']))
