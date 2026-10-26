@@ -50,6 +50,26 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
 .msg{margin:8px 0;color:var(--mut);font-size:.9rem}
 .close{float:right;background:none;color:var(--mut);font-size:1.4rem}
 .danger{color:var(--acc2);border-color:var(--acc2)}
+.halloween-entry{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));z-index:6;background:none;padding:4px;line-height:0;border-radius:18px}
+.halloween-entry img{display:block;width:78px;height:auto;filter:drop-shadow(0 4px 12px #0008);transition:transform .2s}
+.halloween-entry:hover img{transform:translateY(-4px)}
+.halloween-entry:focus-visible{outline:3px solid var(--acc);outline-offset:4px}
+.halloween{--bg:#130d17;--card:#211522;--fg:#fff3e6;--mut:#c7a9b6;--acc:#ff9a3c;--acc2:#db4767;--line:#614035;box-sizing:border-box;background:var(--bg);color:var(--fg);width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid var(--line);border-radius:22px;overflow:auto;box-shadow:0 22px 100px #0009}
+.halloween::backdrop{background:#080510df;backdrop-filter:blur(6px)}
+.halloween h2{font-size:clamp(1.6rem,6vw,2.2rem);margin:8px 0;text-align:center;color:var(--acc)}
+.halloween .intro{text-align:center;color:var(--mut);line-height:1.5;margin:0 0 20px}
+.halloween .eyebrow{text-align:center;letter-spacing:.18em;text-transform:uppercase;color:var(--acc);font-size:.75rem;margin:0}
+.halloween .machine{width:100%;padding:14px}
+.halloween .result{margin:18px 0;min-height:60px}
+.halloween .result h3{font-size:1.7rem;margin:0;color:var(--acc)}
+.halloween .result p{margin:6px 0}
+.halloween details{border-top:1px solid var(--line);padding-top:14px;color:var(--mut)}
+.halloween summary{cursor:pointer;padding:6px 0}
+.halloween ol{padding-left:24px;max-height:180px;overflow:auto;line-height:1.6}
+.halloween .note{font-size:.8rem;color:var(--mut);line-height:1.5}
+.halloween .close{min-width:40px;min-height:40px}
+@media(max-width:520px){body{padding-bottom:130px}.halloween-entry img{width:64px}.halloween{padding:18px}.halloween .row b{font-size:1.1rem}}
+@media(prefers-reduced-motion:reduce){.halloween-entry img{transition:none}}
 </style>
 </head>
 <body>
@@ -89,6 +109,79 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
   </div>
 </div>
 
+<button class="halloween-entry" id="halloweenEntry" aria-label="Ouvrir la roulette spéciale Halloween" aria-haspopup="dialog" title="Une surprise d’Halloween…">
+  <img src="scenes-halloween.png" width="78" height="125" alt="" decoding="async">
+</button>
+<dialog class="halloween" id="halloweenDialog" aria-labelledby="halloweenTitle" aria-describedby="halloweenIntro">
+  <button class="close" id="halloweenClose" aria-label="Fermer la roulette Halloween">×</button>
+  <p class="eyebrow">Le menu secret</p>
+  <h2 id="halloweenTitle">🎃 La roulette Halloween</h2>
+  <p class="intro" id="halloweenIntro">Monstres, frissons et nuits blanches.<br>À toi de réveiller le prochain cauchemar…</p>
+  <div class="machine">
+    <div class="window" aria-hidden="true"><div class="marker"></div><div class="strip" id="halloweenStrip"></div></div>
+    <button class="go" id="halloweenGo">INVOQUER LE HASARD</button>
+    <div class="info" id="halloweenInfo" role="status"></div>
+  </div>
+  <div class="result" id="halloweenResult" role="status" aria-live="polite"></div>
+  <details><summary id="halloweenHistoryTitle">Déjà invoqués (0)</summary><ol id="halloweenHistory"></ol></details>
+  <p><button class="sec" id="halloweenReset" disabled>Tout remettre en jeu</button></p>
+  <p class="note" id="halloweenNote">Ouvert à tous, sans connexion. Aucun doublon avant épuisement de la liste. Historique conservé dans ce navigateur, indépendant de la roulette principale.</p>
+</dialog>
+<script>
+(() => {
+  const entries = [
+    ["Michael Myers","Halloween"],["Laurie Strode","Halloween"],["Freddy Krueger","Les Griffes de la nuit"],["Jason Voorhees","Vendredi 13"],
+    ["Ghostface","Scream"],["Chucky","Jeu d’enfant"],["Pennywise","Ça"],["Hannibal Lecter","Le Silence des agneaux"],
+    ["Norman Bates","Psychose"],["Jack Torrance","Shining"],["Regan MacNeil","L’Exorciste"],["Leatherface","Massacre à la tronçonneuse"],
+    ["Jigsaw","Saw"],["Samara Morgan","Le Cercle"],["Annabelle","Annabelle"],["La Nonne","Conjuring"],
+    ["Dracula","Dracula"],["Le monstre de Frankenstein","Frankenstein"],["Le Loup-garou","Le Loup-garou"],["La Momie","La Momie"],
+    ["Nosferatu","Nosferatu"],["L’Homme invisible","L’Homme invisible"],["Le Xénomorphe","Alien"],["La Créature","The Thing"],
+    ["Beetlejuice","Beetlejuice"],["Mercredi Addams","Mercredi / La Famille Addams"],["Morticia Addams","La Famille Addams"],["La Chose","La Famille Addams"],
+    ["Jack Skellington","L’Étrange Noël de monsieur Jack"],["Sally","L’Étrange Noël de monsieur Jack"],["Oogie Boogie","L’Étrange Noël de monsieur Jack"],["Les sœurs Sanderson","Hocus Pocus"],
+    ["Coraline","Coraline"],["La Beldam","Coraline"],["Emily","Les Noces funèbres"],["Edward aux mains d’argent","Edward aux mains d’argent"],
+    ["Stripe","Gremlins"],["Le Cavalier sans tête","Sleepy Hollow"],["Le Démogorgon","Stranger Things"],["Vecna","Stranger Things"],
+    ["Carrie","Carrie au bal du diable"],["Candyman","Candyman"],["Pinhead","Hellraiser"],["Art le Clown","Terrifier"],
+    ["M3GAN","M3GAN"],["Ash Williams","Evil Dead"],["Evil Dead","Film"],["La Nuit des morts-vivants","Film"],
+    ["Le Projet Blair Witch","Film"],["Paranormal Activity","Film"],["Hérédité","Film"],["Midsommar","Film"],
+    ["Get Out","Film"],["Us","Film"],["The Witch","Film"],["L’Orphelinat","Film"],
+    ["REC","Film"],["Dernier train pour Busan","Film"],["American Horror Story","Série"],["The Haunting of Hill House","Série"],
+    ["Bates Motel","Série"],["The Walking Dead","Série"],["Buffy contre les vampires","Série"],["Les Contes de la crypte","Série"]
+  ].map(([name,source],id)=>({id,name,source}));
+  const $=id=>document.getElementById(id),key="la7eme-halloween-v1";
+  let drawn=[],busy=false,persistent=true;
+  try{const saved=JSON.parse(localStorage.getItem(key)||"[]");if(Array.isArray(saved))drawn=[...new Set(saved)].filter(id=>Number.isInteger(id)&&entries[id]);}catch{persistent=false;}
+  function save(){try{localStorage.setItem(key,JSON.stringify(drawn));}catch{persistent=false;}}
+  function row(entry){const el=document.createElement("div");el.className="row";const name=document.createElement("b"),source=document.createElement("i");name.textContent=entry.name;source.textContent=entry.source;el.append(name,source);return el;}
+  function render(){
+    const left=entries.length-drawn.length;
+    $("halloweenGo").disabled=busy||left===0;
+    $("halloweenReset").disabled=busy||drawn.length===0;
+    $("halloweenInfo").textContent=busy?"L’invocation est en cours…":left?left+" entrées restantes sur "+entries.length:"Tous les cauchemars sont sortis ! Remets-les en jeu pour recommencer.";
+    $("halloweenHistoryTitle").textContent="Déjà invoqués ("+drawn.length+")";
+    $("halloweenHistory").replaceChildren(...drawn.slice().reverse().map(id=>{const item=document.createElement("li");item.textContent=entries[id].name+" — "+entries[id].source;return item;}));
+    if(!persistent)$("halloweenNote").textContent="Ouvert à tous, sans connexion. Le stockage est indisponible : l’historique est conservé seulement jusqu’au rechargement de cette page. La roulette principale reste indépendante.";
+  }
+  const strip=$("halloweenStrip");strip.append(row({name:"?",source:""}),row({name:"Prêt à frissonner ?",source:""}),row({name:"?",source:""}));
+  $("halloweenEntry").onclick=()=>{$("halloweenDialog").showModal();};
+  $("halloweenClose").onclick=()=>$("halloweenDialog").close();
+  $("halloweenGo").onclick=async()=>{
+    if(busy)return;
+    const pool=entries.filter(entry=>!drawn.includes(entry.id));if(!pool.length)return;
+    busy=true;const pick=pool[Math.floor(Math.random()*pool.length)];drawn.push(pick.id);save();render();$("halloweenResult").textContent="";
+    try{
+      const count=36,duration=matchMedia("(prefers-reduced-motion: reduce)").matches?0:3400;
+      strip.style.transition="none";strip.style.transform="translateY(0)";strip.replaceChildren(row({name:"…",source:""}));
+      for(let i=0;i<count;i++)strip.append(row(i===count-1?pick:entries[Math.floor(Math.random()*entries.length)]));
+      strip.append(row(entries[Math.floor(Math.random()*entries.length)]));void strip.offsetHeight;
+      strip.style.transition="transform "+duration+"ms cubic-bezier(.12,.72,.14,1)";strip.style.transform="translateY("+(-(count-1)*64)+"px)";
+      await new Promise(resolve=>setTimeout(resolve,duration+80));
+      const name=document.createElement("h3"),source=document.createElement("p");name.textContent=pick.name;source.textContent=pick.source;$("halloweenResult").replaceChildren(name,source);
+    }finally{busy=false;render();}
+  };
+  $("halloweenReset").onclick=()=>{if(busy||!drawn.length||!confirm("Remettre toutes les entrées Halloween en jeu dans ce navigateur ?"))return;drawn=[];save();$("halloweenResult").textContent="";render();};
+  render();
+})();
+</script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getFirestore,collection,doc,getDoc,onSnapshot,runTransaction,serverTimestamp,writeBatch,deleteField} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
