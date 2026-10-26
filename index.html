@@ -100,12 +100,12 @@ body{display:block;padding:0 0 0 224px}
 <aside class="sidebar" aria-label="Navigation du site">
   <div class="brand">🎲 La 7ème roulette<small>Un peu de hasard.<br>Beaucoup de possibilités.</small></div>
   <nav aria-label="Outils de tirage au sort">
-    <a class="nav-item" href="#roue" id="navWheel" aria-current="page">🎡 Roue de la chance</a>
-    <a class="nav-item" href="#cinema" id="navCinema">🎬 Roulette cinéma</a>
+    <a class="nav-item" href="#cinema" id="navCinema" aria-current="page">🎬 Roulette cinéma</a>
+    <a class="nav-item" href="#roue" id="navWheel">🎡 Roue de la chance</a>
   </nav>
 </aside>
 <main>
-<section class="site-page wheel-page" id="wheelPage" aria-labelledby="wheelTitle">
+<section class="site-page wheel-page" id="wheelPage" aria-labelledby="wheelTitle" hidden>
   <h1 id="wheelTitle" tabindex="-1">La roue de la chance</h1>
   <div class="wheel-layout">
     <div class="wheel-card">
@@ -125,7 +125,7 @@ body{display:block;padding:0 0 0 224px}
     </div>
   </div>
 </section>
-<section class="site-page cinema-page" id="cinemaPage" aria-labelledby="title" hidden>
+<section class="site-page cinema-page" id="cinemaPage" aria-labelledby="title">
 <button class="menuBtn" id="menuBtn" aria-label="Menu" title="Menu">⚙️</button>
 <h1 id="title">🎰 La 7ème roulette</h1>
 <p class="sub">Qui va sortir aujourd'hui ?</p>
@@ -136,6 +136,9 @@ body{display:block;padding:0 0 0 224px}
   <div class="info" id="info">Chargement…</div>
 </div>
 <div class="result" id="result"></div>
+<button class="halloween-entry" id="halloweenEntry" aria-label="Ouvrir la roulette spéciale Halloween" aria-haspopup="dialog" title="Une surprise d’Halloween…">
+  <img src="scenes-halloween.png" width="78" height="125" alt="" decoding="async">
+</button>
 </section>
 </main>
 
@@ -164,9 +167,6 @@ body{display:block;padding:0 0 0 224px}
   </div>
 </div>
 
-<button class="halloween-entry" id="halloweenEntry" aria-label="Ouvrir la roulette spéciale Halloween" aria-haspopup="dialog" title="Une surprise d’Halloween…">
-  <img src="scenes-halloween.png" width="78" height="125" alt="" decoding="async">
-</button>
 <dialog class="halloween" id="halloweenDialog" aria-labelledby="halloweenTitle" aria-describedby="halloweenIntro">
   <button class="close" id="halloweenClose" aria-label="Fermer la roulette Halloween">×</button>
   <p class="eyebrow">Le menu secret</p>
@@ -212,7 +212,7 @@ body{display:block;padding:0 0 0 224px}
     status(spinning?"La roue tourne…":!choices.length?"Ajoute au moins un choix pour commencer.":"");
     rotation=0;wheel.style.transform="rotate(0deg)";if(!tooMany)draw();else wheel.replaceChildren();save();
   }
-  function route(focus=false){const cinema=location.hash==="#cinema";$("wheelPage").hidden=cinema;$("cinemaPage").hidden=!cinema;$("navWheel").removeAttribute("aria-current");$("navCinema").removeAttribute("aria-current");$(cinema?"navCinema":"navWheel").setAttribute("aria-current","page");if(focus){const title=$(cinema?"title":"wheelTitle");title.setAttribute("tabindex","-1");title.focus();}}
+  function route(focus=false){const cinema=location.hash!=="#roue";$("wheelPage").hidden=cinema;$("cinemaPage").hidden=!cinema;$("navWheel").removeAttribute("aria-current");$("navCinema").removeAttribute("aria-current");$(cinema?"navCinema":"navWheel").setAttribute("aria-current","page");if(focus){const title=$(cinema?"title":"wheelTitle");title.setAttribute("tabindex","-1");title.focus();}}
   addEventListener("hashchange",()=>route(true));route();
   input.value="Camille\nAlex\nSam\nLéa\nThomas\nInès";
   try{const stored=JSON.parse(localStorage.getItem(storageKey)||"null");if(stored&&typeof stored.text==="string"){input.value=stored.text;$("wheelRemove").checked=stored.remove===true;}}catch{}
