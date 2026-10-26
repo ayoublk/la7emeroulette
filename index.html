@@ -118,7 +118,7 @@ body{display:block;padding:0 0 0 224px}
     <div class="choices-card">
       <h2>Tes participants</h2>
       <label for="wheelChoices">Un nom ou un choix par ligne</label>
-      <textarea id="wheelChoices" spellcheck="false" placeholder="Camille&#10;Alex&#10;Sam&#10;Léa" aria-describedby="wheelError"></textarea>
+      <textarea id="wheelChoices" spellcheck="false" placeholder="Jacou&#10;Gaétan&#10;Ayoub" aria-describedby="wheelError"></textarea>
       <div class="choices-tools"><button class="sec" id="wheelShuffle">⇄ Mélanger</button><button class="sec" id="wheelClear">Effacer la liste</button></div>
       <label class="remove-choice"><input type="checkbox" id="wheelRemove">Retirer le gagnant de la roue après chaque tirage</label>
       <p class="wheel-error" id="wheelError" role="alert"></p>
@@ -214,8 +214,8 @@ body{display:block;padding:0 0 0 224px}
   }
   function route(focus=false){const cinema=location.hash!=="#roue";$("wheelPage").hidden=cinema;$("cinemaPage").hidden=!cinema;$("navWheel").removeAttribute("aria-current");$("navCinema").removeAttribute("aria-current");$(cinema?"navCinema":"navWheel").setAttribute("aria-current","page");if(focus){const title=$(cinema?"title":"wheelTitle");title.setAttribute("tabindex","-1");title.focus();}}
   addEventListener("hashchange",()=>route(true));route();
-  input.value="Camille\nAlex\nSam\nLéa\nThomas\nInès";
-  try{const stored=JSON.parse(localStorage.getItem(storageKey)||"null");if(stored&&typeof stored.text==="string"){input.value=stored.text;$("wheelRemove").checked=stored.remove===true;}}catch{}
+  input.value="Jacou\nGaétan\nAyoub";
+  try{const stored=JSON.parse(localStorage.getItem(storageKey)||"null");if(stored&&typeof stored.text==="string"){input.value=stored.text==="Camille\nAlex\nSam\nLéa\nThomas\nInès"?"Jacou\nGaétan\nAyoub":stored.text;$("wheelRemove").checked=stored.remove===true;}}catch{}
   input.addEventListener("input",()=>{if(!spinning)update();});$("wheelRemove").onchange=save;
   $("wheelShuffle").onclick=()=>{if(spinning)return;const list=unique(input.value);for(let i=list.length-1;i>0;i--){const j=randomIndex(i+1);[list[i],list[j]]=[list[j],list[i]];}input.value=list.join("\n");update();};
   $("wheelClear").onclick=()=>{if(spinning)return;input.value="";update();input.focus();};
