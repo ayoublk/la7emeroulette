@@ -70,9 +70,69 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
 .halloween .close{min-width:40px;min-height:40px}
 @media(max-width:520px){body{padding-bottom:130px}.halloween-entry img{width:64px}.halloween{padding:18px}.halloween .row b{font-size:1.1rem}}
 @media(prefers-reduced-motion:reduce){.halloween-entry img{transition:none}}
+[hidden]{display:none!important}
+body{display:block;padding:0 0 0 224px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:224px;background:var(--card);border-right:1px solid var(--line);padding:30px 16px;z-index:7;display:flex;flex-direction:column;gap:28px}
+.brand{font-size:1.25rem;font-weight:850;padding:0 10px}.brand small{display:block;color:var(--mut);font-size:.75rem;font-weight:400;margin-top:6px;line-height:1.5}
+.sidebar nav{display:grid;gap:8px}.nav-item{display:flex;align-items:center;gap:10px;text-decoration:none;font:inherit;background:none;color:var(--mut);padding:13px 12px;text-align:left;border-radius:12px;border:1px solid transparent}
+.nav-item:hover{background:var(--bg);color:var(--fg)}.nav-item[aria-current="page"]{background:var(--bg);color:var(--acc);border-color:var(--line)}
+.sidebar footer{margin-top:auto;color:var(--mut);font-size:.75rem;line-height:1.6;padding:10px}
+.site-page{padding:40px 28px 150px;max-width:1250px;margin:0 auto}.cinema-page{display:flex;flex-direction:column;align-items:center}
+.page-kicker{color:var(--acc);font-size:.75rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px}
+.wheel-page h1{text-align:left;font-size:clamp(1.8rem,4vw,2.8rem);margin:0 0 10px}.wheel-lead{color:var(--mut);line-height:1.6;margin:0 0 30px}
+.wheel-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:24px;align-items:start}
+.wheel-card,.choices-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;min-width:0}
+.wheel-stage{position:relative;max-width:490px;margin:10px auto 18px;aspect-ratio:1;filter:drop-shadow(0 14px 25px #0003)}
+.chance-wheel{display:block;width:100%;height:100%;border:8px solid var(--line);border-radius:50%;background:var(--bg);will-change:transform}
+.wheel-pointer{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:32px solid var(--fg);z-index:2;filter:drop-shadow(0 3px 3px #0006)}
+.wheel-hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;width:17%;aspect-ratio:1;background:var(--card);border:6px solid var(--fg);display:grid;place-items:center;font-size:clamp(1.2rem,3vw,2rem);box-shadow:0 3px 12px #0005;pointer-events:none}
+.wheel-actions{display:flex;justify-content:center;gap:12px;align-items:center}.wheel-spin{background:linear-gradient(120deg,var(--acc),var(--acc2));color:#1a1030;font-weight:800;padding:12px 25px;border-radius:100px;min-height:44px}.wheel-spin:disabled{opacity:.4;cursor:not-allowed}
+.wheel-summary{color:var(--mut);text-align:center;font-size:.85rem;margin:12px 0 0;min-height:1.4em}
+.wheel-winner{text-align:center;margin-top:22px;padding:18px;background:var(--bg);border:1px solid var(--line);border-radius:16px;min-height:100px;overflow-wrap:anywhere}.wheel-winner span{font-size:.8rem;color:var(--mut)}.wheel-winner strong{display:block;font-size:clamp(1.3rem,3vw,2rem);color:var(--acc);margin-top:8px}
+.choices-card h2{font-size:1.2rem;margin:0 0 8px}.choices-card label{display:block;margin:18px 0 8px;font-size:.9rem}.choices-card textarea{height:250px;font:inherit;line-height:1.7;resize:vertical}.choices-hint{font-size:.8rem;color:var(--mut);line-height:1.6;margin:8px 0}.choices-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.choices-tools button{padding:9px 12px}.choices-card .remove-choice{display:flex;align-items:flex-start;gap:9px;line-height:1.5}.remove-choice input{margin-top:5px;accent-color:var(--acc)}
+.wheel-error{color:var(--acc2);font-size:.85rem;min-height:1.5em;line-height:1.5}.wheel-history{color:var(--mut);margin-top:22px;border-top:1px solid var(--line);padding-top:16px}.wheel-history summary{cursor:pointer}.wheel-history ol{padding-left:24px;line-height:1.8;max-height:180px;overflow:auto;overflow-wrap:anywhere}
+.nav-item:focus-visible,.wheel-spin:focus-visible,.sec:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+@media(max-width:1050px){.wheel-layout{grid-template-columns:minmax(0,1fr)}.choices-card textarea{height:180px}}
+@media(max-width:700px){body{padding-left:0}.sidebar{position:static;width:auto;padding:16px;border-right:0;border-bottom:1px solid var(--line);gap:16px}.brand small{display:none}.sidebar nav{display:flex;overflow-x:auto;gap:6px}.nav-item{white-space:nowrap;font-size:.85rem;padding:11px 10px;flex-shrink:0}.sidebar footer{display:none}.site-page{padding:28px 16px 135px}.wheel-card,.choices-card{padding:18px}.wheel-layout{gap:16px}.wheel-page h1{font-size:1.8rem}.cinema-page .menuBtn{top:auto;bottom:18px;right:100px}.wheel-stage{max-width:420px}}
 </style>
 </head>
 <body>
+<aside class="sidebar" aria-label="Navigation du site">
+  <div class="brand">🎲 La 7ème roulette<small>Un peu de hasard.<br>Beaucoup de possibilités.</small></div>
+  <nav aria-label="Outils de tirage au sort">
+    <a class="nav-item" href="#roue" id="navWheel" aria-current="page">🎡 Roue de la chance</a>
+    <a class="nav-item" href="#cinema" id="navCinema">🎬 Roulette cinéma</a>
+    <button class="nav-item" id="navHalloween" aria-haspopup="dialog">🎃 Spécial Halloween</button>
+  </nav>
+  <footer>Ton rendez-vous avec le hasard.<br>De nouveaux outils au fil des envies.</footer>
+</aside>
+<main>
+<section class="site-page wheel-page" id="wheelPage" aria-labelledby="wheelTitle">
+  <p class="page-kicker">À chacun sa chance</p>
+  <h1 id="wheelTitle" tabindex="-1">La roue de la chance</h1>
+  <p class="wheel-lead">Des prénoms, des idées, des possibilités. Écris tes choix et laisse la roue décider.</p>
+  <div class="wheel-layout">
+    <div class="wheel-card">
+      <div class="wheel-stage"><div class="wheel-pointer" aria-hidden="true"></div><svg class="chance-wheel" id="chanceWheel" viewBox="0 0 1000 1000" role="img" aria-label="Roue de la chance"></svg><div class="wheel-hub" aria-hidden="true">✦</div></div>
+      <div class="wheel-actions"><button class="wheel-spin" id="wheelSpin">↻ Lancer la roue</button></div>
+      <p class="wheel-summary" id="wheelSummary" role="status"></p>
+      <div class="wheel-winner" id="wheelWinner" role="status" aria-live="polite"><span>Qui sera choisi ?</span><strong>Le hasard a le dernier mot.</strong></div>
+      <details class="wheel-history"><summary id="wheelHistoryTitle">Derniers tirages (0)</summary><ol id="wheelHistory"></ol></details>
+    </div>
+    <div class="choices-card">
+      <h2>Tes participants</h2>
+      <p class="choices-hint">Chaque personne occupe une part égale de la roue.</p>
+      <label for="wheelChoices">Un nom ou un choix par ligne</label>
+      <textarea id="wheelChoices" spellcheck="false" placeholder="Camille&#10;Alex&#10;Sam&#10;Léa" aria-describedby="choicesHelp wheelError"></textarea>
+      <p class="choices-hint" id="choicesHelp">Jusqu’à 200 choix. Les lignes vides sont ignorées et les noms identiques sont regroupés.</p>
+      <div class="choices-tools"><button class="sec" id="wheelShuffle">⇄ Mélanger</button><button class="sec" id="wheelClear">Effacer la liste</button></div>
+      <label class="remove-choice"><input type="checkbox" id="wheelRemove">Retirer le gagnant de la roue après chaque tirage</label>
+      <p class="wheel-error" id="wheelError" role="alert"></p>
+      <p class="choices-hint" id="wheelStorageNote">Sans connexion. Ta liste est conservée uniquement dans ce navigateur.</p>
+    </div>
+  </div>
+</section>
+<section class="site-page cinema-page" id="cinemaPage" aria-labelledby="title" hidden>
 <button class="menuBtn" id="menuBtn" aria-label="Menu" title="Menu">⚙️</button>
 <h1 id="title">🎰 La 7ème roulette</h1>
 <p class="sub">Qui va sortir aujourd'hui ?</p>
@@ -83,6 +143,8 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
   <div class="info" id="info">Chargement…</div>
 </div>
 <div class="result" id="result"></div>
+</section>
+</main>
 
 <div class="overlay" id="ov">
   <div class="panel">
@@ -127,6 +189,64 @@ textarea{width:100%;height:130px;background:var(--bg);color:var(--fg);border:1px
   <p><button class="sec" id="halloweenReset" disabled>Tout remettre en jeu</button></p>
   <p class="note" id="halloweenNote">Ouvert à tous, sans connexion. Aucun doublon avant épuisement de la liste. Historique conservé dans ce navigateur, indépendant de la roulette principale.</p>
 </dialog>
+<script>
+(() => {
+  const $=id=>document.getElementById(id),svgNS="http://www.w3.org/2000/svg",storageKey="la7eme-custom-wheel-v1";
+  let choices=[],rotation=0,spinning=false,history=[],storageOK=true;
+  const input=$("wheelChoices"),wheel=$("chanceWheel");
+  function unique(text){const seen=new Set();return text.split(/\r?\n/).map(s=>s.trim()).filter(s=>{const key=s.normalize("NFC").toLocaleLowerCase("fr");if(!s||seen.has(key))return false;seen.add(key);return true;});}
+  function randomIndex(n){const limit=Math.floor(4294967296/n)*n,values=new Uint32Array(1);do{crypto.getRandomValues(values);}while(values[0]>=limit);return values[0]%n;}
+  function save(){try{localStorage.setItem(storageKey,JSON.stringify({text:input.value,remove:$("wheelRemove").checked}));}catch{storageOK=false;$("wheelStorageNote").textContent="Sans connexion. Le stockage est indisponible : cette liste sera perdue au rechargement.";}}
+  function node(tag,attrs){const el=document.createElementNS(svgNS,tag);for(const [key,value]of Object.entries(attrs))el.setAttribute(key,String(value));return el;}
+  function draw(){
+    const n=choices.length;wheel.replaceChildren();wheel.setAttribute("aria-label",n?"Roue de "+n+" choix avec des parts égales":"Roue vide : ajoute des participants");
+    if(!n){wheel.append(node("circle",{cx:500,cy:500,r:498,fill:"var(--bg)"}));const label=node("text",{x:500,y:350,"text-anchor":"middle",fill:"var(--mut)","font-size":38});label.textContent="Ajoute tes choix →";wheel.append(label);return;}
+    const angle=360/n;
+    choices.forEach((name,i)=>{
+      const start=(i*angle-90)*Math.PI/180,end=((i+1)*angle-90)*Math.PI/180;
+      const color="hsl("+((i*137.508)%360)+" 65% 43%)";
+      const path=n===1?node("circle",{cx:500,cy:500,r:498,fill:color}):node("path",{d:`M500 500 L${500+498*Math.cos(start)} ${500+498*Math.sin(start)} A498 498 0 ${angle>180?1:0} 1 ${500+498*Math.cos(end)} ${500+498*Math.sin(end)} Z`,fill:color,stroke:"#ffffff90","stroke-width":2});
+      const title=node("title",{});title.textContent=name;path.append(title);wheel.append(path);
+      if(n<=48){const group=node("g",{transform:`rotate(${i*angle+angle/2-90} 500 500)`});const text=node("text",{x:930,y:500,dy:".35em","text-anchor":"end",fill:"#fff","font-size":n>24?17:n>12?23:30,"font-weight":750,style:"paint-order:stroke;stroke:#0004;stroke-width:2px"});text.textContent=Array.from(name).length>20?Array.from(name).slice(0,19).join("")+"…":name;group.append(text);wheel.append(group);}
+    });
+  }
+  function update(){
+    choices=unique(input.value);const tooMany=choices.length>200;
+    $("wheelError").textContent=tooMany?"La roue accepte 200 choix maximum. Réduis la liste pour lancer le tirage.":"";
+    $("wheelSpin").disabled=spinning||!choices.length||tooMany;
+    $("wheelShuffle").disabled=spinning||choices.length<2||tooMany;$("wheelClear").disabled=spinning||!input.value;
+    $("wheelSummary").textContent=spinning?"La roue tourne…":tooMany?choices.length+" choix saisis":choices.length?choices.length+" choix · "+new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(100/choices.length)+" % de chance chacun":"Ajoute au moins un choix pour commencer.";
+    rotation=0;wheel.style.transform="rotate(0deg)";if(!tooMany)draw();else wheel.replaceChildren();save();
+  }
+  function route(focus=false){const cinema=location.hash==="#cinema";$("wheelPage").hidden=cinema;$("cinemaPage").hidden=!cinema;$("navWheel").removeAttribute("aria-current");$("navCinema").removeAttribute("aria-current");$(cinema?"navCinema":"navWheel").setAttribute("aria-current","page");if(focus){const title=$(cinema?"title":"wheelTitle");title.setAttribute("tabindex","-1");title.focus();}}
+  addEventListener("hashchange",()=>route(true));route();
+  $("navHalloween").onclick=()=>$("halloweenDialog").showModal();
+  input.value="Camille\nAlex\nSam\nLéa\nThomas\nInès";
+  try{const stored=JSON.parse(localStorage.getItem(storageKey)||"null");if(stored&&typeof stored.text==="string"){input.value=stored.text;$("wheelRemove").checked=stored.remove===true;}}catch{storageOK=false;}
+  input.addEventListener("input",()=>{if(!spinning)update();});$("wheelRemove").onchange=save;
+  $("wheelShuffle").onclick=()=>{if(spinning)return;const list=unique(input.value);for(let i=list.length-1;i>0;i--){const j=randomIndex(i+1);[list[i],list[j]]=[list[j],list[i]];}input.value=list.join("\n");update();};
+  $("wheelClear").onclick=()=>{if(spinning)return;input.value="";update();input.focus();};
+  $("wheelSpin").onclick=async()=>{
+    if(spinning||!choices.length||choices.length>200)return;
+    const pool=choices.slice(),index=randomIndex(pool.length),winner=pool[index],angle=360/pool.length;
+    const offset=(randomIndex(10001)/10000-.5)*angle*.55;
+    const stop=((360-(index+.5)*angle+offset)%360+360)%360;
+    const target=rotation+2160+((stop-rotation%360+360)%360);
+    spinning=true;input.disabled=true;$("wheelRemove").disabled=true;$("wheelSpin").disabled=true;$("wheelShuffle").disabled=true;$("wheelClear").disabled=true;
+    $("wheelSummary").textContent="La roue tourne…";$("wheelWinner").replaceChildren();
+    try{
+      const duration=matchMedia("(prefers-reduced-motion: reduce)").matches?150:5000;
+      const animation=wheel.animate([{transform:`rotate(${rotation}deg)`},{transform:`rotate(${target}deg)`}],{duration,easing:"cubic-bezier(.12,.72,.12,1)"});
+      await animation.finished;rotation=stop;wheel.style.transform=`rotate(${rotation}deg)`;
+      const caption=document.createElement("span"),name=document.createElement("strong");caption.textContent="Le hasard a choisi…";name.textContent=winner;$("wheelWinner").replaceChildren(caption,name);
+      history.unshift(winner);history=history.slice(0,30);$("wheelHistoryTitle").textContent="Derniers tirages ("+history.length+")";$("wheelHistory").replaceChildren(...history.map(value=>{const item=document.createElement("li");item.textContent=value;return item;}));
+      if($("wheelRemove").checked){input.value=pool.filter((_,i)=>i!==index).join("\n");spinning=false;update();}
+    }catch{const error=document.createElement("span");error.textContent="Le tirage a été interrompu. Relance la roue.";$("wheelWinner").replaceChildren(error);}
+    finally{spinning=false;input.disabled=false;$("wheelRemove").disabled=false;$("wheelSpin").disabled=!choices.length||choices.length>200;$("wheelShuffle").disabled=choices.length<2||choices.length>200;$("wheelClear").disabled=!input.value;$("wheelSummary").textContent=choices.length?choices.length+" choix · parts égales":"Tous les participants ont été tirés. Ajoute de nouveaux choix.";save();}
+  };
+  update();
+})();
+</script>
 <script>
 (() => {
   const entries = [
